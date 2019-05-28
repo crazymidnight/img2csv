@@ -17,29 +17,37 @@ DATA_PATH = (
 # TODO: разобрать эту жесть и сделать исключение не dcm-файлов
 def process_dataset(path: str = ROOT_PATH, folders: tuple = DATA_PATH) -> dict:
     data = {folder: None for folder in folders}
-    
+
     for folder in folders:
         if not os.path.exists(f"../data/{folder}"):
             os.mkdir(f"../data/{folder}/")
         nested = sorted(os.listdir(f"{path}/{folder}"))
-        for key in nested:
-            if not os.path.exists(f"../data/{folder}/{key}/{key.split('_')[-1]}"):
-                os.mkdir(f"../data/{folder}/{key}/{key.split('_')[-1]}")
-            for img in os.listdir(f"{path}/{folder}/{key}/{key.split('_')[-1]}/CT/"):
-                if not os.path.exists(f"../data/{folder}/{key}/{key.split('_')[-1]}/CT/"):
-                    os.mkdir(f"../data/{folder}/{key}/{key.split('_')[-1]}/CT/")
+        for patiend_id in nested:
+            if not os.path.exists(
+                f"../data/{folder}/{patiend_id}/{patiend_id.split('_')[-1]}"
+            ):
+                os.mkdir(f"../data/{folder}/{patiend_id}/{patiend_id.split('_')[-1]}")
+            for img in os.listdir(
+                f"{path}/{folder}/{patiend_id}/{patiend_id.split('_')[-1]}/CT/"
+            ):
+                if not os.path.exists(
+                    f"../data/{folder}/{patiend_id}/{patiend_id.split('_')[-1]}/CT/"
+                ):
+                    os.mkdir(
+                        f"../data/{folder}/{patiend_id}/{patiend_id.split('_')[-1]}/CT/"
+                    )
                 for x in os.listdir(
-                    f"{path}/{folder}/{key}/{key.split('_')[-1]}/CT/{img}"
+                    f"{path}/{folder}/{patiend_id}/{patiend_id.split('_')[-1]}/CT/{img}"
                 ):
                     if x[::-1][:4] == "mcd.":
                         dcm = dcmread(
-                            f"{path}/{folder}/{key}/{key.split('_')[-1]}/CT/{img}/{x}"
+                            f"{path}/{folder}/{patiend_id}/{patiend_id.split('_')[-1]}/CT/{img}/{x}"
                         )
                         dcm = dcm.pixel_array.astype(np.uint16)
                         rgb = to_rgb(dcm)
                         im = Image.fromarray(rgb)
                         im.save(
-                            f"../data/{folder}/{key}/{key.split('_')[-1]}/CT/{img}.png",
+                            f"../data/{folder}/{patiend_id}/{patiend_id.split('_')[-1]}/CT/{img}.png",
                             format="png",
                         )
 
